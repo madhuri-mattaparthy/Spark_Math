@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NumBot - Play</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-image: url("static/math-quiz-background.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        z-index: 0;
+      }
+
+      /* Remove all floating elements */
+
+      /* Remove all floating elements */
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding-top: 40px;
+        position: relative;
+        z-index: 10;
+      }
+      .nav-bar {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        justify-content: center;
+      }
+      .nav-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.9);
+        color: #667eea;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+      }
+      .nav-btn:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      .level-selector {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+      .level-btn {
+        padding: 15px 30px;
+        border: 3px solid white;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .level-btn.active {
+        background: white;
+        color: #667eea;
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+      .companion-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+      }
+      .companion {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: companion-float 3s ease-in-out infinite;
+      }
+      @keyframes companion-float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+      .companion.celebrate {
+        animation: celebrate 0.6s ease;
+      }
+      @keyframes celebrate {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.2) rotate(-10deg);
+        }
+        75% {
+          transform: scale(1.2) rotate(10deg);
+        }
+      }
+      .problem-card {
+        background: white;
+        border-radius: 30px;
+        padding: 50px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .question-text {
+        font-size: 48px;
+        font-weight: bold;
+        color: #2d3748;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+      }
+      .input-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .answer-input {
+        width: 200px;
+        height: 80px;
+        font-size: 40px;
+        text-align: center;
+        border: 4px solid #667eea;
+        border-radius: 20px;
+      }
+      .answer-input:focus {
+        outline: none;
+        border-color: #764ba2;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+      }
+      .voice-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        border: 4px solid #667eea;
+        background: white;
+        cursor: pointer;
+        font-size: 35px;
+        transition: all 0.3s ease;
+      }
+      .voice-btn:hover {
+        background: #667eea;
+        transform: scale(1.05);
+      }
+      .voice-btn.listening {
+        background: #ff4444;
+        border-color: #ff4444;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+      .submit-btn {
+        padding: 20px 60px;
+        font-size: 24px;
+        font-weight: bold;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+      }
+      .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+      }
+      .feedback {
+        display: none;
+        padding: 30px;
+        border-radius: 20px;
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .feedback.show {
+        display: block;
+      }
+      .feedback.correct {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        color: #155724;
+      }
+      .feedback.wrong {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: #721c24;
+      }
+      .emoji-rain {
+        position: fixed;
+        font-size: 50px;
+        animation: fall 3s linear;
+        pointer-events: none;
+        z-index: 999;
+      }
+      @keyframes fall {
+        to {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px 30px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        flex: 1;
+        min-width: 150px;
+      }
+      .answer-input:focus::placeholder {
+        color: transparent;
+      }
+      .answer-input:focus::-webkit-inner-spin-button,
+      .answer-input:focus::-webkit-outer-spin-button,
+      .answer-input:hover::-webkit-inner-spin-button,
+      .answer-input:hover::-webkit-outer-spin-button {
+        opacity: 0;
+      }
+      .stat-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+      }
+      .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #667eea;
+      }
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+      .disabled {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav-bar">
+        <a href="/play" class="nav-btn">Play</a>
+        <a href="/dashboard" class="nav-btn">Dashboard</a>
+      </div>
+
+      <div class="level-selector">
+        <button class="level-btn active" data-level="1">Level 1 - Easy</button>
+        <button class="level-btn" data-level="2">Level 2 - Medium</button>
+        <button class="level-btn" data-level="3">Level 3 - Hard</button>
+      </div>
+
+      <div class="companion-container">
+        <div class="companion" id="companion">🦊</div>
+      </div>
+
+      <div class="problem-card">
+        <div class="question-text" id="questionText">Loading...</div>
+
+        <div class="input-container">
+          <input
+            type="number"
+            class="answer-input"
+            id="answerInput"
+            placeholder="?"
+          />
+          <button class="voice-btn" id="voiceBtn" title="Speak your answer">
+            🎤
+          </button>
+        </div>
+
+        <button class="submit-btn" id="submitBtn">Submit Answer</button>
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-value" id="totalSolved">0</div>
+          <div class="stat-label">Solved</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="streakCount">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value" id="accuracy">0%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var game = {
+        level: 1,
+        question: null,
+        stats: { total: 0, correct: 0, streak: 0 },
+        startTime: Date.now(),
+      };
+
+      var currentAudio = null;
+
+      var recognition = null;
+      if (
+        "webkitSpeechRecognition" in window ||
+        "SpeechRecognition" in window
+      ) {
+        var SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = function (event) {
+          var transcript = event.results[0][0].transcript;
+          var num = transcript.replace(/[^0-9]/g, "");
+          if (num !== "") {
+            document.getElementById("answerInput").value = num;
+          } else {
+            document.getElementById("answerInput").value = "";
+          }
+        };
+
+        recognition.onerror = function (event) {
+          document.getElementById("voiceBtn").classList.remove("listening");
+        };
+
+        recognition.onend = function () {
+          document.getElementById("voiceBtn").classList.remove("listening");
+        };
+      }
+
+      function speak(text) {
+        return new Promise(async function (resolve) {
+          if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+          }
+
+          if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
+
+          try {
+            var response = await fetch("/api/text-to-speech", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: text }),
+            });
+
+            if (response.ok) {
+              var contentType = response.headers.get("content-type");
+              if (contentType && contentType.includes("audio")) {
+                var audioBlob = await response.blob();
+                var audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+
+                currentAudio.onended = function () {
+                  URL.revokeObjectURL(audioUrl);
+                  currentAudio = null;
+                  resolve();
+                };
+
+                currentAudio.play().catch(function (err) {
+                  setTimeout(resolve, 1500);
+                });
+              } else {
+                setTimeout(resolve, 1500);
+              }
+            } else {
+              setTimeout(resolve, 1500);
+            }
+          } catch (error) {
+            setTimeout(resolve, 1500);
+          }
+        });
+      }
+
+      async function generateQuestion() {
+        game.startTime = Date.now();
+        document.getElementById("answerInput").value = "";
+        document.getElementById("feedback").className = "feedback";
+
+        try {
+          var response = await fetch(
+            "/api/generate-question?level=" + game.level
+          );
+          var data = await response.json();
+
+          game.question = data;
+          document.getElementById("questionText").textContent =
+            data.problem + " = ?";
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      async function submitAnswer() {
+        var input = document.getElementById("answerInput").value;
+        if (!input) return;
+
+        var timeTaken = Math.floor((Date.now() - game.startTime) / 1000);
+
+        try {
+          var response = await fetch("/api/submit-answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              child_id: 1,
+              level: game.level,
+              problem: game.question.problem,
+              answer: input,
+              correct_answer: game.question.answer,
+              time_taken: timeTaken,
+            }),
+          });
+
+          var result = await response.json();
+
+          game.stats.total++;
+          var feedback = document.getElementById("feedback");
+          var companion = document.getElementById("companion");
+
+          if (result.is_correct) {
+            game.stats.correct++;
+            game.stats.streak++;
+            feedback.className = "feedback correct show";
+            feedback.textContent = result.ai_response;
+            companion.textContent = "🎉";
+            companion.classList.add("celebrate");
+            createEmojiRain("🎉⭐🌟✨");
+          } else {
+            game.stats.streak = 0;
+            feedback.className = "feedback wrong show";
+            feedback.textContent =
+              result.ai_response + " The answer was " + result.correct_answer;
+            companion.textContent = "🤗";
+            createEmojiRain("💪🌈😊");
+          }
+
+          setTimeout(function () {
+            companion.classList.remove("celebrate");
+            companion.textContent = "🦊";
+          }, 1000);
+
+          updateStats();
+
+          await speak(result.ai_response);
+          await generateQuestion();
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      function createEmojiRain(emojis) {
+        var arr = emojis.split("");
+        for (var i = 0; i < 10; i++) {
+          setTimeout(function () {
+            var el = document.createElement("div");
+            el.className = "emoji-rain";
+            el.textContent = arr[Math.floor(Math.random() * arr.length)];
+            el.style.left = Math.random() * 100 + "%";
+            document.body.appendChild(el);
+            setTimeout(function () {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            }, 3000);
+          }, i * 100);
+        }
+      }
+
+      function updateStats() {
+        document.getElementById("totalSolved").textContent = game.stats.total;
+        document.getElementById("streakCount").textContent = game.stats.streak;
+        var acc =
+          game.stats.total > 0
+            ? Math.round((game.stats.correct / game.stats.total) * 100)
+            : 0;
+        document.getElementById("accuracy").textContent = acc + "%";
+      }
+
+      document.querySelectorAll(".level-btn").forEach(function (btn) {
+        btn.onclick = function () {
+          document.querySelectorAll(".level-btn").forEach(function (b) {
+            b.classList.remove("active");
+          });
+          this.classList.add("active");
+          game.level = parseInt(this.getAttribute("data-level"));
+          generateQuestion();
+        };
+      });
+
+      document.getElementById("submitBtn").onclick = submitAnswer;
+
+      document.getElementById("answerInput").onkeypress = function (e) {
+        if (e.keyCode === 13) submitAnswer();
+      };
+
+      document.getElementById("voiceBtn").onclick = function () {
+        if (recognition) {
+          // Always abort any ongoing recognition before starting a new one
+          try {
+            recognition.abort();
+          } catch (e) {}
+          this.classList.add("listening");
+          recognition.start();
+        } else {
+          alert("Voice input not supported");
+        }
+      };
+
+      generateQuestion();
+    </script>
+  </body>
+</html>
